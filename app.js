@@ -21,6 +21,9 @@ if(process.env.NODE_ENV === 'development'){
 app.engine('.hbs', exphbs({defaultLayout: 'main', extname: '.hbs'}));
 app.set('view engine', '.hbs');
 
+//Routes
+
+
 const PORT = process.env.PORT || 3000
 
 app.listen(
