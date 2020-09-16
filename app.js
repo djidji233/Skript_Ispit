@@ -1,10 +1,12 @@
 const express = require('express')
+const mongoose = require('mongoose')
 const path =  require('path')
 const dotenv = require('dotenv')
 const morgan = require('morgan')
 const exphbs = require('express-handlebars')
 const passport = require('passport')
 const session = require('express-session')
+const MongoStore = require('connect-mongo')(session)
 const connectDB = require('./config/db')
 
 
@@ -31,7 +33,8 @@ app.set('view engine', '.hbs');
 app.use(session({
     secret: 'supersecret big secret',
     resave: false, // don't save a session if nothing is modified
-    saveUninitialized: false // don't create a session until something is stored
+    saveUninitialized: false, // don't create a session until something is stored
+    store: new MongoStore({ mongooseConnection: mongoose.connection }) // session save (reload bug)
 }))
 
 // Passport middleware
@@ -44,6 +47,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 //Routes
 app.use('/', require('./routes/index'))
 app.use('/auth', require('./routes/auth'))
+app.use('/stories', require('./routes/stories'))
 
 const PORT = process.env.PORT || 3000
 
