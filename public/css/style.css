@@ -11,3 +11,8 @@ p {
 .fa-small {
     font-size: 18px !important;
 }
+
+.btn-float {
+    float: left;
+    margin-right: 10px;
+}

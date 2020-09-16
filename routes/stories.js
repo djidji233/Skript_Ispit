@@ -43,23 +43,52 @@ router.get('/', ensureAuth, async (req, res) => {
     }
 })
 
+// Show single story
+// GET /stories/:id
+router.get('/:id', ensureAuth, async (req, res) => {
+    try {
+        let story = await Story.findById(req.params.id)
+        .populate('user')
+        .lean()
+
+        if(!story){
+            return res.render('error/404')
+        }
+
+        res.render('stories/show', {
+            story
+        })
+
+    } catch (error) {
+        console.error(error)
+        res.render('error/404')
+    }
+})
+
+
 // Show edit page
 // GET /stories/edit/:id
 router.get('/edit/:id', ensureAuth, async (req, res) => {
-    const story = await Story.findOne({
-        _id: req.params.id
-    }).lean()
 
-    if(!story){ // story not found
-        return res.render('error/404')
-    }
-
-    if(story.user != req.user.id){ // story user != logged user
-        res.redirect('/stories')
-    } else {
-        res.render('stories/edit', {
-            story
-        })
+    try {
+        const story = await Story.findOne({
+            _id: req.params.id
+        }).lean()
+    
+        if(!story){ // story not found
+            return res.render('error/404')
+        }
+    
+        if(story.user != req.user.id){ // story user != logged user
+            res.redirect('/stories')
+        } else {
+            res.render('stories/edit', {
+                story
+            })
+        }
+    } catch (error) {
+        console.error(error)
+        return res.redirect('error/500')
     }
 
 })
@@ -67,7 +96,9 @@ router.get('/edit/:id', ensureAuth, async (req, res) => {
 // Update story
 // PUT /stories/:id
 router.put('/:id', ensureAuth, async (req, res) => {
-    let story = await Story.findById(req.params.id).lean()
+
+    try {
+        let story = await Story.findById(req.params.id).lean()
 
     if(!story) {
         return res.render('error/404')
@@ -83,9 +114,25 @@ router.put('/:id', ensureAuth, async (req, res) => {
 
         res.redirect('/dashboard')
     }
+    } catch (error) {
+        console.error(error)
+        return res.render('error/500')
+    }
 
 })
 
+
+// Delete story
+// DELETE /stories/:id
+router.delete('/:id', ensureAuth, async (req, res) => {
+    try {
+        await Story.remove({ _id: req.params.id })
+        res.redirect('/dashboard')
+    } catch (error) {
+        console.error(error)
+        return res.render('error/500')
+    }
+})
 
 
 module.exports = router
